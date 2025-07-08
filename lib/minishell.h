@@ -6,7 +6,7 @@
 /*   By: amert <amert@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/04 16:50:00 by amert             #+#    #+#             */
-/*   Updated: 2025/07/04 16:50:00 by amert            ###   ########.fr       */
+/*   Updated: 2025/07/08 15:51:31 by amert            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,19 +38,29 @@
 # define SUCCESS 0
 # define FAILURE 1
 
+/* Exit Status Codes (POSIX standard) */
+# define EXIT_SUCCESS 0
+# define EXIT_FAILURE 1
+# define EXIT_SYNTAX_ERROR 2
+# define EXIT_CMD_NOT_FOUND 127
+# define EXIT_NOT_EXECUTABLE 126
+
 /* ************************************************************************** */
 /*                                 STRUCTURES                                 */
 /* ************************************************************************** */
 
 typedef enum e_token_types
 {
+	TOKEN_NONE,
 	TOKEN_WORD,
+	TOKEN_COMMAND,
+	TOKEN_ARGUMENT,
+	TOKEN_FILE,
 	TOKEN_PIPE,
 	TOKEN_REDIRECT_IN,
 	TOKEN_REDIRECT_OUT,
 	TOKEN_APPEND,
-	TOKEN_HEREDOC,
-	TOKEN_EOF
+	TOKEN_HEREDOC
 } e_token_types;
 
 typedef struct s_env
@@ -68,19 +78,9 @@ typedef struct s_token
 	struct s_token	*next;
 }	t_token;
 
-typedef struct s_cmd
-{
-	char			**args;
-	char			*input_file;
-	char			*output_file;
-	int				append;
-	struct s_cmd	*next;
-}	t_cmd;
-
 typedef struct s_shell
 {
 	t_env	*env;
-	t_cmd	**commands;
 	int		exit_status;
 }	t_shell;
 
@@ -93,33 +93,57 @@ void	init_shell(t_shell *shell, char **envp);
 void	shell_loop(t_shell *shell);
 void	cleanup_shell(t_shell *shell);
 
+/* String Syntax Validation */
+int		validate_syntax(char *input);
+int		check_quote_matching(char *input);
+int		check_operator_syntax(char *input);
+int		check_empty_segments(char *input);
+void	print_syntax_error(char *error_msg, int position);
+
 /* Environment functions */
 t_env	*create_env_node(char *key, char *value);
 void	add_env_node(t_env **env, t_env *new_node);
+t_env	*find_env_node(t_env *env, char *key);
+int		remove_env_node(t_env **env, char *key);
 char	*get_env_value(t_env *env, char *key);
-void	set_env_value(t_env **env, char *key, char *value);
+int		set_env_value(t_env **env, char *key, char *value);
+int		unset_env_value(t_env **env, char *key);
+int		env_key_exists(t_env *env, char *key);
+void	free_env_node(t_env *node);
 void	free_env_list(t_env *env);
+int		count_env_nodes(t_env *env);
+char	**env_to_array(t_env *env);
+t_env	*init_env_from_system(char **envp);
+
+/* Lexer/Tokenizer functions */
+int		is_whitespace(char c);
+int		is_quote(char c);
+int		is_operator_char(char c);
+int		is_token_separator(char c);
+int		skip_whitespace(const char *str, int *i);
+int		is_token_char(char c);
 
 /* Parsing functions */
-t_token	*tokenize(char *input);
-t_cmd	*parse_tokens(t_token *tokens);
+t_token	*create_token_node(char *content, e_token_types type);
+void	add_token_node(t_token **tokens, t_token *new_token);
+t_token	*find_token_by_type(t_token *tokens, e_token_types type);
+t_token	*get_last_token(t_token *tokens);
+int		remove_token_node(t_token **tokens, t_token *token_to_remove);
+void	free_token_node(t_token *token);
 void	free_tokens(t_token *tokens);
-void	free_commands(t_cmd *commands);
+int		count_tokens(t_token *tokens);
+int		count_tokens_by_type(t_token *tokens, e_token_types type);
+t_token	*duplicate_token_list(t_token *tokens);
+int		is_redirect_token(e_token_types type);
+int		is_operator_token(e_token_types type);
+t_token	*get_next_word_token(t_token *token);
+t_token	*get_prev_word_token(t_token *token);
+int		validate_token_sequence(t_token *tokens);
+t_token	*tokenize(char *input);
 
-
-/* Execution functions */
-int		execute_commands(t_shell *shell);
-int		execute_builtin(t_shell *shell, t_cmd *cmd);
-int		execute_external(t_shell *shell, t_cmd *cmd);
-
-/* Built-in commands */
-int		builtin_echo(char **args);
-int		builtin_cd(t_shell *shell, char **args);
-int		builtin_pwd(void);
-int		builtin_export(t_shell *shell, char **args);
-int		builtin_unset(t_shell *shell, char **args);
-int		builtin_env(t_shell *shell);
-int		builtin_exit(t_shell *shell, char **args);
+/* Variable Expansion */
+char	*handle_special_vars(char *name, t_shell *shell);
+char	*expand_variable(char *var, t_shell *shell);
 
 /* Utils */
 int		is_builtin(char *cmd);

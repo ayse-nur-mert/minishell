@@ -5,7 +5,10 @@ LIBDIR = lib
 LIBFTDIR = $(LIBDIR)/libft
 OBJDIR = obj
 
-SRCS = main.c
+SRCS = main.c env_utils.c env_memory.c env_operations.c env_init.c \
+       token_utils.c token_memory.c token_operations.c \
+       shell_core.c syntax_validator.c syntax_utils.c \
+       expansion_utils.c lexer_utils.c lexer.c
 
 OBJS = $(SRCS:%.c=$(OBJDIR)/%.o)
 
@@ -24,7 +27,7 @@ all: $(NAME)
 
 $(NAME): $(LIBFT) $(OBJS)
 	@echo "$(YELLOW)Linking $(NAME)...$(NC)"
-	@$(CC) $(CFLAGS) $(OBJS) $(LIBFT) -o $(NAME)
+	@$(CC) $(CFLAGS) $(OBJS) $(LIBFT) -lreadline -o $(NAME)
 	@echo "$(GREEN)$(NAME) compiled successfully!$(NC)"
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.c
