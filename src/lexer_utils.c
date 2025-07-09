@@ -22,19 +22,12 @@ int	is_quote(char c)
 	return (c == '\'' || c == '"');
 }
 
-/* Removed duplicate definition of is_operator_char - now using the one from header */
-
 int	is_token_separator(char c)
 {
 	return (is_whitespace(c) || is_operator_char(c));
 }
 
-/**
- * Skip whitespace characters in a string
- * @param str The string to process
- * @param i Pointer to current position
- * @return 1 if whitespace was skipped, 0 otherwise
- */
+
 int	skip_whitespace(const char *str, int *i)
 {
 	int	start;
@@ -45,11 +38,6 @@ int	skip_whitespace(const char *str, int *i)
 	return (*i > start);
 }
 
-/**
- * Determines if a character is part of a token
- * @param c Character to check
- * @return 1 if part of a token, 0 otherwise
- */
 int	is_token_char(char c)
 {
 	return (c && !is_whitespace(c) && !is_operator_char(c));

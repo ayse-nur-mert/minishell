@@ -20,7 +20,6 @@ void	init_shell(t_shell *shell, char **envp)
 		return ;
 	shell->env = init_env_from_system(envp);
 	shell->exit_status = 0;
-	printf("Minishell initialized\n");
 }
 
 void	cleanup_shell(t_shell *shell)
@@ -84,28 +83,20 @@ static int	process_input(t_shell *shell, char *input)
 	t_token	*tokens;
 	
 	printf("Processing: %s\n", input);
-	
-	/* SYNTAX VALIDATION */
+	// mesaj çıktıları düzenlenecek
 	if (validate_syntax(input) == FAILURE)
 	{
 		shell->exit_status = EXIT_SYNTAX_ERROR;
 		return (FAILURE);
 	}
-	
-	printf("✓ Syntax valid\n");
-	
-	/* TOKENIZATION */
+
 	tokens = tokenize(input);
 	if (!tokens)
 	{
-		printf("× Tokenization failed\n");
 		shell->exit_status = EXIT_FAILURE;
 		return (FAILURE);
-	}
-	
-	printf("✓ Tokenization complete\n");
+	}	
 	print_tokens(tokens);
-	
 	free_tokens(tokens);
 	shell->exit_status = EXIT_SUCCESS;
 	return (SUCCESS);
@@ -120,25 +111,20 @@ void	shell_loop(t_shell *shell)
 		shell->exit_status = 1;
 		return ;
 	}
-	
-	printf("=== MINISHELL STARTED ===\n");
-	printf("Current focus: Syntax Validation\n\n");
-	
 	while (1)
 	{
 		input = read_input_line();
-		if (!input)  /* Ctrl+D pressed */
+		if (!input)
 		{
-			shell->exit_status = 0;  /* Normal exit */
+			shell->exit_status = 0;
 			break ;
 		}
 		if (ft_strlen(input) == 0)
 		{
 			free(input);
-			shell->exit_status = 0;  /* Empty command is success */
+			shell->exit_status = 0;
 			continue ;
 		}
-		
 		process_input(shell, input);
 		free(input);
 		printf("\n");

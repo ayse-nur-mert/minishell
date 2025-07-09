@@ -12,13 +12,13 @@
 
 #include "../lib/minishell.h"
 
-int	main(int argc, char **argv, char **envp)
+int	main()
 {
+	extern char	**environ;
+
 	t_shell	shell;
 
-	(void)argc;
-	(void)argv;
-	init_shell(&shell, envp);
+	init_shell(&shell, environ);
 	shell_loop(&shell);
 	cleanup_shell(&shell);
 	return (shell.exit_status);

@@ -88,7 +88,7 @@ t_token	*tokenize(char *input)
 	t_token	*tokens;
 	t_token	*new_token;
 	int		i;
-
+	
 	tokens = NULL;
 	i = 0;
 	while (input && input[i])

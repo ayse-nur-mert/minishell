@@ -40,14 +40,8 @@ int	check_quote_matching(char *input)
 		i++;
 	}
 	if (in_single_quote)
-	{
-		print_syntax_error("unclosed single quote", -1);
-		return (FAILURE);
-	}
+		return (print_syntax_error("unclosed single quote", -1), FAILURE);
 	if (in_double_quote)
-	{
-		print_syntax_error("unclosed double quote", -1);
-		return (FAILURE);
-	}
+		return (print_syntax_error("unclosed double quote", -1), FAILURE);
 	return (SUCCESS);
 }
