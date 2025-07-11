@@ -419,15 +419,18 @@ typedef enum e_token_types
 - ✅ **Değişken Genişletme**: 
   - Özel değişkenler (`$?`, `$$`, `$0`)
   - Environment değişkenleri (`$HOME`, `$USER`, vb.)
-  - Quote-aware genişletme (single/double quote desteği)
+  - Basic değişken genişletme implementasyonu
   - Escape character desteği (`\$`)
-- ✅ **Quote Handling**:
-  - Single quotes: Değişken genişletme yapılmaz
-  - Double quotes: Değişken genişletme yapılır
-  - Mixed quote desteği
-- ✅ **Tokenization with Expansion**: Token seviyesinde değişken genişletme
+- ✅ **Word Splitting**: 
+  - Değişken genişletme sonrası otomatik kelime bölme
+  - Whitespace-based token separation
+  - Multi-word değişkenlerden multiple token oluşturma
+- ✅ **Quote Handling**: 
+  - Basic quote detection ve parsing
+  - Single/double quote ayrımı (geliştirilmekte)
+- ✅ **Advanced Tokenization**: Token seviyesinde değişken genişletme ve word splitting
 
-## 🔍 Desteklenen Değişken Genişletme Örnekleri
+## 🔍 Desteklenen Değişken Genişletme ve Word Splitting Örnekleri
 
 ```bash
 # Environment değişkenleri
@@ -438,6 +441,16 @@ echo $USER          # kullanici_adi
 echo $?             # Son komutun exit status'u
 echo $$             # Shell'in process ID'si
 echo $0             # minishell
+
+# Word Splitting Examples
+export cmd="ls -la"
+$cmd               # Token: [ls] [--la] (ayrı tokenlar)
+
+export greeting="echo hello world"
+$greeting          # Token: [echo] [hello] [world] (3 ayrı token)
+
+# Tanımsız değişkenler
+echo $UNDEFINED     # (boş string, token kaldırılır)
 
 # Quote handling
 echo '$HOME'        # $HOME (genişletme yapılmaz)
@@ -450,13 +463,40 @@ echo "User: $USER, Home: '$HOME'"  # User: john, Home: '$HOME'
 
 ## 🚧 Geliştirme Durumu
 
-Bu proje şu anda **lexical analysis** ve **syntax validation** aşamalarında tamamlanmıştır. Gelecek adımlar:
+Bu proje şu anda **lexical analysis**, **syntax validation**, **değişken genişletme** ve **word splitting** aşamalarında tamamlanmıştır.
 
-1. **Parsing**: AST (Abstract Syntax Tree) oluşturma
-2. **Command Execution**: Komut çalıştırma
-3. **Built-in Commands**: cd, echo, env, export, unset, exit
-4. **Redirection**: Dosya yönlendirme işlemleri
-5. **Pipes**: Pipe operatörü implementasyonu
+### ✅ Tamamlanan Özellikler:
+- Lexical analysis ve tokenization
+- Syntax validation (quotes, operators, empty segments)
+- Environment değişken yönetimi (CRUD)
+- Değişken genişletme ($?, $$, $0, $VAR)
+- **Word splitting**: Genişletme sonrası otomatik token bölme
+- Advanced tokenization with expansion ve splitting
+- Bellek yönetimi ve cleanup
+
+### 🔄 Geliştirme Aşamasında:
+- **Quote Handling**: Single/double quote davranış farkları
+- **Advanced Expansion**: Nested variables, complex scenarios
+
+### 📋 Gelecek Adımlar:
+1. **Quote Handling Fix**: Doğru single/double quote davranışı
+2. **Parsing**: AST (Abstract Syntax Tree) oluşturma
+3. **Command Execution**: Komut çalıştırma engine'i
+4. **Built-in Commands**: cd, echo, env, export, unset, exit, pwd
+5. **Redirection**: Dosya yönlendirme (<, >, >>)
+6. **Pipes**: Pipe operatörü (|) implementasyonu
+7. **Heredoc**: << operatörü implementasyonu
+8. **Signal Handling**: Ctrl+C, Ctrl+D, Ctrl+\
+
+### 🐛 Bilinen Sorunlar:
+- Single quote içinde değişken genişletme yapılıyor (yapılmamalı)
+- Double quote içinde değişken genişletme yapılmıyor (yapılmalı)
+- Mixed quote scenarios'da beklenmeyen davranışlar
+
+### 🚀 Yeni Eklenen:
+- **Word Splitting**: `export cmd="ls -la"` → `$cmd` → `[ls] [-la]` (ayrı tokenlar)
+- **Dynamic Token Generation**: Tek değişkenden multiple token oluşturma
+- **Whitespace-based Splitting**: Space, tab, newline desteği
 
 ## 🤝 Katkıda Bulunma
 
