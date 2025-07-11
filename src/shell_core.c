@@ -90,12 +90,12 @@ static int	process_input(t_shell *shell, char *input)
 		return (FAILURE);
 	}
 
-	tokens = tokenize(input);
+	tokens = tokenize_with_expansion(input, shell);
 	if (!tokens)
 	{
 		shell->exit_status = EXIT_FAILURE;
 		return (FAILURE);
-	}	
+	}
 	print_tokens(tokens);
 	free_tokens(tokens);
 	shell->exit_status = EXIT_SUCCESS;
@@ -125,6 +125,7 @@ void	shell_loop(t_shell *shell)
 			shell->exit_status = 0;
 			continue ;
 		}
+		// parser
 		process_input(shell, input);
 		free(input);
 		printf("\n");

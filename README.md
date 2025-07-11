@@ -22,14 +22,16 @@ minishell/
 ├── lib/                  # Kütüphaneler
 │   ├── minishell.h       # Ana header dosyası
 │   └── libft/           # Libft kütüphanesi
+├── obj/                  # Object dosyaları
 └── src/                 # Kaynak kodlar
-    ├── main.c           # Ana program
-    ├── shell_core.c     # Shell ana fonksiyonları
+    ├── main.c           # Ana program entry point
+    ├── shell_core.c     # Shell ana döngüsü ve işleme
     ├── env_*.c          # Environment değişken yönetimi
-    ├── token_*.c        # Token yönetimi
-    ├── lexer*.c         # Lexical analysis
-    ├── syntax_*.c       # Sözdizimi kontrolü
-    └── expansion_*.c    # Değişken genişletme
+    ├── token_*.c        # Token operasyonları ve bellek yönetimi
+    ├── lexer.c          # Lexical analysis ve tokenization
+    ├── lexer_utils.c    # Lexer yardımcı fonksiyonları  
+    ├── syntax_*.c       # Sözdizimi kontrolü ve validasyon
+    └── expansion_utils.c # Değişken genişletme ve quote handling
 ```
 
 ## 🔧 Derleme ve Kullanım
@@ -294,11 +296,47 @@ Kullanıcı girişini token'lara ayrıştırır.
 Özel shell değişkenlerini ($?, $$, $0) işler.
 - **Parametreler**: Değişken adı ve shell yapısı
 - **Dönüş**: Genişletilmiş değer veya NULL
+- **Desteklenen Özel Değişkenler**:
+  - `$?`: Son komutun exit status'u
+  - `$$`: Shell'in process ID'si
+  - `$0`: Shell'in adı (minishell)
 
 #### `char *expand_variable(char *var, t_shell *shell)`
 Bir değişkeni genişletir (env veya özel değişken).
 - **Parametreler**: Değişken adı ve shell yapısı
 - **Dönüş**: Genişletilmiş değer
+- **Fonksiyon**: Önce özel değişkenleri, sonra environment değişkenlerini kontrol eder
+
+#### `char *expand_variables_in_string(char *str, t_shell *shell)`
+String içindeki tüm değişkenleri genişletir (temel versiyon).
+- **Parametreler**: Kaynak string ve shell yapısı
+- **Dönüş**: Genişletilmiş string
+- **Fonksiyon**: String içindeki `$variable` ifadelerini değerleriyle değiştirir
+
+#### `char *expand_variables_in_string_quoted(char *str, t_shell *shell)`
+Quote-aware değişken genişletme fonksiyonu.
+- **Parametreler**: Kaynak string ve shell yapısı
+- **Dönüş**: Genişletilmiş string
+- **Özellikler**:
+  - Single quote içinde değişken genişletme yapmaz (`'$HOME'` → `$HOME`)
+  - Double quote içinde değişken genişletme yapar (`"$HOME"` → `/home/user`)
+  - Escape edilmiş değişkenleri genişletmez (`\$HOME` → `$HOME`)
+
+#### `t_token *tokenize_with_expansion(char *input, t_shell *shell)`
+Tokenize işlemi sırasında değişken genişletme yapar.
+- **Parametreler**: Giriş string'i ve shell yapısı
+- **Dönüş**: Genişletilmiş token listesi
+- **Fonksiyon**: 
+  - Önce normal tokenize işlemi yapar
+  - Sonra her TOKEN_WORD tipindeki token'da `$` varsa genişletme yapar
+  - Quote kurallarına uygun şekilde genişletme yapar
+
+#### Genişletme Kuralları
+1. **Single Quotes (`'...'`)**: Hiçbir genişletme yapılmaz
+2. **Double Quotes (`"..."`)**: Değişken genişletme yapılır
+3. **Escape (`\$`)**: Genişletme yapılmaz
+4. **Tanımsız Değişkenler**: Boş string olarak değiştirilir
+5. **Özel Karakterler**: Sadece alphanumeric ve `_` karakterleri değişken adında kabul edilir
 
 ---
 
@@ -378,7 +416,37 @@ typedef enum e_token_types
 - ✅ **Lexical Analysis**: Token'lara ayrıştırma
 - ✅ **Çevre Değişken Yönetimi**: Tam CRUD operasyonları
 - ✅ **Bellek Yönetimi**: Sızıntı önleme ve temizlik
-- ✅ **Değişken Genişletme**: Özel ve çevre değişkenleri
+- ✅ **Değişken Genişletme**: 
+  - Özel değişkenler (`$?`, `$$`, `$0`)
+  - Environment değişkenleri (`$HOME`, `$USER`, vb.)
+  - Quote-aware genişletme (single/double quote desteği)
+  - Escape character desteği (`\$`)
+- ✅ **Quote Handling**:
+  - Single quotes: Değişken genişletme yapılmaz
+  - Double quotes: Değişken genişletme yapılır
+  - Mixed quote desteği
+- ✅ **Tokenization with Expansion**: Token seviyesinde değişken genişletme
+
+## 🔍 Desteklenen Değişken Genişletme Örnekleri
+
+```bash
+# Environment değişkenleri
+echo $HOME          # /home/user
+echo $USER          # kullanici_adi
+
+# Özel değişkenler  
+echo $?             # Son komutun exit status'u
+echo $$             # Shell'in process ID'si
+echo $0             # minishell
+
+# Quote handling
+echo '$HOME'        # $HOME (genişletme yapılmaz)
+echo "$HOME"        # /home/user (genişletme yapılır)
+echo \$HOME         # $HOME (escape edilmiş)
+
+# Mixed quotes
+echo "User: $USER, Home: '$HOME'"  # User: john, Home: '$HOME'
+```
 
 ## 🚧 Geliştirme Durumu
 

@@ -140,10 +140,16 @@ t_token	*get_next_word_token(t_token *token);
 t_token	*get_prev_word_token(t_token *token);
 int		validate_token_sequence(t_token *tokens);
 t_token	*tokenize(char *input);
+t_token	*tokenize_with_expansion(char *input, t_shell *shell);
 
 /* Variable Expansion */
 char	*handle_special_vars(char *name, t_shell *shell);
 char	*expand_variable(char *var, t_shell *shell);
+char	*expand_variables_in_string(char *str, t_shell *shell);
+char	*expand_variables_in_string_quoted(char *str, t_shell *shell);
+char	**split_expanded_content(char *content);
+t_token	*create_tokens_from_words(char **words, e_token_types type);
+void	free_word_array(char **words);
 
 /* Utils */
 int		is_builtin(char *cmd);

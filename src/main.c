@@ -15,8 +15,7 @@
 int	main()
 {
 	extern char	**environ;
-
-	t_shell	shell;
+	t_shell shell;
 
 	init_shell(&shell, environ);
 	shell_loop(&shell);
