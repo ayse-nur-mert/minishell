@@ -6,19 +6,19 @@
 /*   By: amert <amert@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 16:50:00 by amert             #+#    #+#             */
-/*   Updated: 2025/07/08 15:19:03 by amert            ###   ########.fr       */
+/*   Updated: 2025/07/13 16:07:24 by amert            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../lib/minishell.h"
 
-int	is_redirect_token(e_token_types type)
+int	is_redirect_token(t_token_types type)
 {
 	return (type == TOKEN_REDIRECT_IN || type == TOKEN_REDIRECT_OUT
 		|| type == TOKEN_APPEND || type == TOKEN_HEREDOC);
 }
 
-int	is_operator_token(e_token_types type)
+int	is_operator_token(t_token_types type)
 {
 	return (type == TOKEN_PIPE || is_redirect_token(type));
 }

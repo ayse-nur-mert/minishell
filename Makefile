@@ -7,9 +7,11 @@ OBJDIR = obj
 
 SRCS = main.c env_utils.c env_memory.c env_operations.c env_init.c \
        token_utils.c token_memory.c token_operations.c \
-       shell_core.c syntax_validator.c syntax_utils.c \
-       expansion_utils.c lexer_utils.c lexer.c quote_handler.c \
-       token_classifier.c pipeline_parser.c
+       shell_core.c shell_input.c syntax_validator.c syntax_utils.c syntax_checks.c syntax_segments.c \
+       expansion_utils.c expansion_core.c expansion_quoted.c expansion_helpers.c \
+       lexer_utils.c lexer.c lexer_word.c lexer_operators.c lexer_expansion.c \
+       quote_handler.c quote_cleaner.c \
+       token_classifier.c pipeline_parser.c pipeline_utils.c print_utils.c
 
 OBJS = $(SRCS:%.c=$(OBJDIR)/%.o)
 
@@ -53,5 +55,6 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all clean fclean re run debug
+
+.PHONY: all clean fclean re run debug test
 

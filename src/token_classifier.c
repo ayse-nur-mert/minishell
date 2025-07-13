@@ -19,10 +19,10 @@ static void	classify_word_token(t_token *token, t_token *prev_token)
 		token->type = TOKEN_COMMAND;
 		return ;
 	}
-	if (prev_token->type == TOKEN_REDIRECT_IN || 
-		prev_token->type == TOKEN_REDIRECT_OUT ||
-		prev_token->type == TOKEN_APPEND || 
-		prev_token->type == TOKEN_HEREDOC)
+	if ((prev_token->type == TOKEN_REDIRECT_IN)
+		|| (prev_token->type == TOKEN_REDIRECT_OUT)
+		|| (prev_token->type == TOKEN_APPEND)
+		|| (prev_token->type == TOKEN_HEREDOC))
 	{
 		token->type = TOKEN_FILE;
 		return ;
@@ -32,8 +32,8 @@ static void	classify_word_token(t_token *token, t_token *prev_token)
 		token->type = TOKEN_COMMAND;
 		return ;
 	}
-	if (prev_token->type == TOKEN_COMMAND || 
-		prev_token->type == TOKEN_ARGUMENT)
+	if ((prev_token->type == TOKEN_COMMAND)
+		|| (prev_token->type == TOKEN_ARGUMENT))
 	{
 		token->type = TOKEN_ARGUMENT;
 		return ;

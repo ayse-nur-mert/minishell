@@ -1,43 +1,51 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   lexer_utils.c                                      :+:      :+:    :+:   */
+/*   pipeline_utils.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: amert <amert@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/07/08 16:50:00 by amert             #+#    #+#             */
+/*   Created: 2025/07/13 16:50:00 by amert             #+#    #+#             */
 /*   Updated: 2025/07/13 16:07:24 by amert            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../lib/minishell.h"
 
-int	is_whitespace(char c)
+int	count_pipelines(t_token *tokens)
 {
-	return (c == ' ' || c == '\t' || c == '\n');
+	t_token	*current;
+	int		count;
+
+	current = tokens;
+	count = 1;
+	while (current)
+	{
+		if (current->type == TOKEN_PIPE)
+			count++;
+		current = current->next;
+	}
+	return (count);
 }
 
-int	is_quote(char c)
+void	cleanup_pipelines(t_token **pipelines, int count)
 {
-	return (c == '\'' || c == '"');
+	while (--count >= 0)
+		free_tokens(pipelines[count]);
+	free(pipelines);
 }
 
-int	is_token_separator(char c)
+void	free_pipeline_array(t_token **pipelines)
 {
-	return (is_whitespace(c) || is_operator_char(c));
-}
+	int	i;
 
-int	skip_whitespace(const char *str, int *i)
-{
-	int	start;
-
-	start = *i;
-	while (str[*i] && is_whitespace(str[*i]))
-		(*i)++;
-	return (*i > start);
-}
-
-int	is_token_char(char c)
-{
-	return (c && !is_whitespace(c) && !is_operator_char(c));
+	if (!pipelines)
+		return ;
+	i = 0;
+	while (pipelines[i])
+	{
+		free_tokens(pipelines[i]);
+		i++;
+	}
+	free(pipelines);
 }

@@ -12,39 +12,31 @@
 
 #include "../lib/minishell.h"
 
-static int	count_pipelines(t_token *tokens)
+static t_token	*create_and_add_token(t_token **new_list, t_token *current)
 {
-	t_token	*current;
-	int		count;
+	t_token	*new_token;
 
-	current = tokens;
-	count = 1;
-	while (current)
+	new_token = create_token_node(current->content, current->type);
+	if (!new_token)
 	{
-		if (current->type == TOKEN_PIPE)
-			count++;
-		current = current->next;
+		free_tokens(*new_list);
+		return (NULL);
 	}
-	return (count);
+	add_token_node(new_list, new_token);
+	return (new_token);
 }
 
 static t_token	*copy_tokens_until_pipe(t_token *start, t_token **next_start)
 {
 	t_token	*new_list;
 	t_token	*current;
-	t_token	*new_token;
 
 	new_list = NULL;
 	current = start;
 	while (current && current->type != TOKEN_PIPE)
 	{
-		new_token = create_token_node(current->content, current->type);
-		if (!new_token)
-		{
-			free_tokens(new_list);
+		if (!create_and_add_token(&new_list, current))
 			return (NULL);
-		}
-		add_token_node(&new_list, new_token);
 		current = current->next;
 	}
 	if (current && current->type == TOKEN_PIPE)
@@ -54,20 +46,19 @@ static t_token	*copy_tokens_until_pipe(t_token *start, t_token **next_start)
 	return (new_list);
 }
 
-t_token	**split_by_pipes(t_token *tokens, int *pipeline_count)
+static t_token	**allocate_pipelines(int count)
 {
 	t_token	**pipelines;
+
+	pipelines = malloc(sizeof(t_token *) * (count + 1));
+	return (pipelines);
+}
+
+static int	fill_pipelines(t_token **pipelines, t_token *tokens, int count)
+{
 	t_token	*current;
-	int		count;
 	int		i;
 
-	if (!tokens || !pipeline_count)
-		return (NULL);
-	count = count_pipelines(tokens);
-	*pipeline_count = count;
-	pipelines = malloc(sizeof(t_token *) * (count + 1));
-	if (!pipelines)
-		return (NULL);
 	current = tokens;
 	i = 0;
 	while (i < count && current)
@@ -75,28 +66,28 @@ t_token	**split_by_pipes(t_token *tokens, int *pipeline_count)
 		pipelines[i] = copy_tokens_until_pipe(current, &current);
 		if (!pipelines[i])
 		{
-			while (--i >= 0)
-				free_tokens(pipelines[i]);
-			free(pipelines);
-			return (NULL);
+			cleanup_pipelines(pipelines, i);
+			return (FAILURE);
 		}
 		i++;
 	}
-	pipelines[count] = NULL;
-	return (pipelines);
+	return (SUCCESS);
 }
 
-void	free_pipeline_array(t_token **pipelines)
+t_token	**split_by_pipes(t_token *tokens, int *pipeline_count)
 {
-	int	i;
+	t_token	**pipelines;
+	int		count;
 
+	if (!tokens || !pipeline_count)
+		return (NULL);
+	count = count_pipelines(tokens);
+	*pipeline_count = count;
+	pipelines = allocate_pipelines(count);
 	if (!pipelines)
-		return ;
-	i = 0;
-	while (pipelines[i])
-	{
-		free_tokens(pipelines[i]);
-		i++;
-	}
-	free(pipelines);
+		return (NULL);
+	if (fill_pipelines(pipelines, tokens, count) == FAILURE)
+		return (NULL);
+	pipelines[count] = NULL;
+	return (pipelines);
 }

@@ -6,13 +6,13 @@
 /*   By: amert <amert@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 16:50:00 by amert             #+#    #+#             */
-/*   Updated: 2025/07/08 15:19:03 by amert            ###   ########.fr       */
+/*   Updated: 2025/07/13 16:07:24 by amert            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../lib/minishell.h"
 
-t_token	*create_token_node(char *content, e_token_types type)
+t_token	*create_token_node(char *content, t_token_types type)
 {
 	t_token	*new_token;
 	char	*content_copy;
@@ -56,7 +56,7 @@ void	add_token_node(t_token **tokens, t_token *new_token)
 	new_token->prev = current;
 }
 
-t_token	*find_token_by_type(t_token *tokens, e_token_types type)
+t_token	*find_token_by_type(t_token *tokens, t_token_types type)
 {
 	t_token	*current;
 

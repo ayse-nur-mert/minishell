@@ -6,7 +6,7 @@
 /*   By: amert <amert@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 16:50:00 by amert             #+#    #+#             */
-/*   Updated: 2025/07/08 15:19:03 by amert            ###   ########.fr       */
+/*   Updated: 2025/07/13 16:07:24 by amert            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ int	count_tokens(t_token *tokens)
 	return (count);
 }
 
-int	count_tokens_by_type(t_token *tokens, e_token_types type)
+int	count_tokens_by_type(t_token *tokens, t_token_types type)
 {
 	int		count;
 	t_token	*current;
