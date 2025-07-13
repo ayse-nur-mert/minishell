@@ -6,7 +6,7 @@
 /*   By: amert <amert@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/04 16:50:00 by amert             #+#    #+#             */
-/*   Updated: 2025/07/13 16:07:24 by amert            ###   ########.fr       */
+/*   Updated: 2025/07/13 16:16:03 by amert            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,12 +92,12 @@ typedef struct s_shell
 void	init_shell(t_shell *shell, char **envp);
 void	shell_loop(t_shell *shell);
 void	cleanup_shell(t_shell *shell);
-int		process_pipelines(t_shell *shell, t_token *tokens);
+t_token	**process_pipelines(t_shell *shell, t_token *tokens, int *pipeline_count);
 
 /* Shell Input Handling */
 char	*read_input_line(void);
-int		process_input(t_shell *shell, char *input);
-int		handle_input(t_shell *shell, char *input);
+t_token	**process_input(t_shell *shell, char *input, int *pipeline_count);
+t_token	**handle_input(t_shell *shell, char *input, int *pipeline_count);
 
 /* String Syntax Validation */
 int		validate_syntax(char *input);

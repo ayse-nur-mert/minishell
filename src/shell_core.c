@@ -6,7 +6,7 @@
 /*   By: amert <amert@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 16:50:00 by amert             #+#    #+#             */
-/*   Updated: 2025/07/13 16:07:24 by amert            ###   ########.fr       */
+/*   Updated: 2025/07/13 16:16:11 by amert            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,29 +30,29 @@ void	cleanup_shell(t_shell *shell)
 		free_env_list(shell->env);
 }
 
-int	process_pipelines(t_shell *shell, t_token *tokens)
+t_token	**process_pipelines(t_shell *shell, t_token *tokens, int *pipeline_count)
 {
 	t_token	**pipelines;
-	int		pipeline_count;
 
-	pipelines = split_by_pipes(tokens, &pipeline_count);
+	pipelines = split_by_pipes(tokens, pipeline_count);
 	if (!pipelines)
 	{
 		free_tokens(tokens);
 		shell->exit_status = EXIT_FAILURE;
-		return (FAILURE);
+		return (NULL);
 	}
 	printf("=== After Pipeline Splitting ===\n");
-	print_pipeline_tokens(pipelines, pipeline_count);
+	print_pipeline_tokens(pipelines, *pipeline_count);
 	free_tokens(tokens);
-	free_pipeline_array(pipelines);
 	shell->exit_status = EXIT_SUCCESS;
-	return (SUCCESS);
+	return (pipelines);
 }
 
 void	shell_loop(t_shell *shell)
 {
-	char	*input;
+	char		*input;
+	t_token		**pipelines;
+	int			pipeline_count;
 
 	if (!shell || !shell->env)
 	{
@@ -67,8 +67,12 @@ void	shell_loop(t_shell *shell)
 			shell->exit_status = 0;
 			break ;
 		}
-		if (handle_input(shell, input) == SUCCESS)
+		pipelines = handle_input(shell, input, &pipeline_count);
+		if (pipelines)
+		{
+			free_pipeline_array(pipelines);
 			printf("\n");
+		}
 		free(input);
 	}
 }

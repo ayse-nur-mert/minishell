@@ -6,7 +6,7 @@
 /*   By: amert <amert@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/13 14:45:00 by amert             #+#    #+#             */
-/*   Updated: 2025/07/13 16:07:24 by amert            ###   ########.fr       */
+/*   Updated: 2025/07/13 16:16:03 by amert            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ char	*read_input_line(void)
 	return (input);
 }
 
-static int	process_tokens(t_shell *shell, char *input)
+static t_token	**process_tokens(t_shell *shell, char *input, int *pipeline_count)
 {
 	t_token	*tokens;
 
@@ -35,31 +35,30 @@ static int	process_tokens(t_shell *shell, char *input)
 	if (!tokens)
 	{
 		shell->exit_status = EXIT_FAILURE;
-		return (FAILURE);
+		return (NULL);
 	}
 	clean_token_quotes(tokens);
 	classify_tokens(tokens);
-	return (process_pipelines(shell, tokens));
+	return (process_pipelines(shell, tokens, pipeline_count));
 }
 
-int	process_input(t_shell *shell, char *input)
+t_token	**process_input(t_shell *shell, char *input, int *pipeline_count)
 {
 	printf("Processing: %s\n", input);
 	if (validate_syntax(input) == FAILURE)
 	{
 		shell->exit_status = EXIT_SYNTAX_ERROR;
-		return (FAILURE);
+		return (NULL);
 	}
-	return (process_tokens(shell, input));
+	return (process_tokens(shell, input, pipeline_count));
 }
 
-int	handle_input(t_shell *shell, char *input)
+t_token	**handle_input(t_shell *shell, char *input, int *pipeline_count)
 {
 	if (ft_strlen(input) == 0)
 	{
 		shell->exit_status = 0;
-		return (FAILURE);
+		return (NULL);
 	}
-	process_input(shell, input);
-	return (SUCCESS);
+	return (process_input(shell, input, pipeline_count));
 }
