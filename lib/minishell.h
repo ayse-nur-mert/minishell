@@ -6,7 +6,7 @@
 /*   By: amert <amert@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/04 16:50:00 by amert             #+#    #+#             */
-/*   Updated: 2025/07/08 15:51:31 by amert            ###   ########.fr       */
+/*   Updated: 2025/07/13 14:25:30 by amert            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -150,6 +150,17 @@ char	*expand_variables_in_string_quoted(char *str, t_shell *shell);
 char	**split_expanded_content(char *content);
 t_token	*create_tokens_from_words(char **words, e_token_types type);
 void	free_word_array(char **words);
+
+/* Quote Handling */
+char	*remove_quotes(const char *str);
+void	clean_token_quotes(t_token *tokens);
+
+/* Token Classification */
+void	classify_tokens(t_token *tokens);
+
+/* Pipeline Parsing */
+t_token	**split_by_pipes(t_token *tokens, int *pipeline_count);
+void	free_pipeline_array(t_token **pipelines);
 
 /* Utils */
 int		is_builtin(char *cmd);

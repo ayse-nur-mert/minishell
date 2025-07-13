@@ -8,7 +8,8 @@ OBJDIR = obj
 SRCS = main.c env_utils.c env_memory.c env_operations.c env_init.c \
        token_utils.c token_memory.c token_operations.c \
        shell_core.c syntax_validator.c syntax_utils.c \
-       expansion_utils.c lexer_utils.c lexer.c
+       expansion_utils.c lexer_utils.c lexer.c quote_handler.c \
+       token_classifier.c pipeline_parser.c
 
 OBJS = $(SRCS:%.c=$(OBJDIR)/%.o)
 

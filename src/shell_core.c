@@ -6,7 +6,7 @@
 /*   By: amert <amert@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 16:50:00 by amert             #+#    #+#             */
-/*   Updated: 2025/07/08 15:53:26 by amert            ###   ########.fr       */
+/*   Updated: 2025/07/13 14:25:30 by amert            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,42 +45,51 @@ static char	*read_input_line(void)
 	return (input);
 }
 
-static void	print_tokens(t_token *tokens)
+static void	print_pipeline_tokens(t_token **pipelines, int pipeline_count)
 {
+	int		i;
 	t_token	*current;
-	
-	current = tokens;
-	while (current)
+
+	i = 0;
+	while (i < pipeline_count)
 	{
-		printf("Token: [%s] Type: ", current->content);
-		if (current->type == TOKEN_NONE)
-			printf("NONE");
-		else if (current->type == TOKEN_WORD)
-			printf("WORD");
-		else if (current->type == TOKEN_COMMAND)
-			printf("COMMAND");
-		else if (current->type == TOKEN_ARGUMENT)
-			printf("ARGUMENT");
-		else if (current->type == TOKEN_FILE)
-			printf("FILE");
-		else if (current->type == TOKEN_PIPE)
-			printf("PIPE");
-		else if (current->type == TOKEN_REDIRECT_IN)
-			printf("REDIRECT_IN");
-		else if (current->type == TOKEN_REDIRECT_OUT)
-			printf("REDIRECT_OUT");
-		else if (current->type == TOKEN_APPEND)
-			printf("APPEND");
-		else if (current->type == TOKEN_HEREDOC)
-			printf("HEREDOC");
-		printf("\n");
-		current = current->next;
+		printf("=== Pipeline %d ===\n", i + 1);
+		current = pipelines[i];
+		while (current)
+		{
+			printf("Token: [%s] Type: ", current->content);
+			if (current->type == TOKEN_NONE)
+				printf("NONE");
+			else if (current->type == TOKEN_WORD)
+				printf("WORD");
+			else if (current->type == TOKEN_COMMAND)
+				printf("COMMAND");
+			else if (current->type == TOKEN_ARGUMENT)
+				printf("ARGUMENT");
+			else if (current->type == TOKEN_FILE)
+				printf("FILE");
+			else if (current->type == TOKEN_PIPE)
+				printf("PIPE");
+			else if (current->type == TOKEN_REDIRECT_IN)
+				printf("REDIRECT_IN");
+			else if (current->type == TOKEN_REDIRECT_OUT)
+				printf("REDIRECT_OUT");
+			else if (current->type == TOKEN_APPEND)
+				printf("APPEND");
+			else if (current->type == TOKEN_HEREDOC)
+				printf("HEREDOC");
+			printf("\n");
+			current = current->next;
+		}
+		i++;
 	}
 }
 
 static int	process_input(t_shell *shell, char *input)
 {
 	t_token	*tokens;
+	t_token	**pipelines;
+	int		pipeline_count;
 	
 	printf("Processing: %s\n", input);
 	// mesaj çıktıları düzenlenecek
@@ -96,8 +105,23 @@ static int	process_input(t_shell *shell, char *input)
 		shell->exit_status = EXIT_FAILURE;
 		return (FAILURE);
 	}
-	print_tokens(tokens);
+	
+	clean_token_quotes(tokens);
+	classify_tokens(tokens);
+	
+	pipelines = split_by_pipes(tokens, &pipeline_count);
+	if (!pipelines)
+	{
+		free_tokens(tokens);
+		shell->exit_status = EXIT_FAILURE;
+		return (FAILURE);
+	}
+	
+	printf("=== After Pipeline Splitting ===\n");
+	print_pipeline_tokens(pipelines, pipeline_count);
+	
 	free_tokens(tokens);
+	free_pipeline_array(pipelines);
 	shell->exit_status = EXIT_SUCCESS;
 	return (SUCCESS);
 }

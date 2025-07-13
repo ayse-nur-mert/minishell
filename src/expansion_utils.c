@@ -6,7 +6,7 @@
 /*   By: amert <amert@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 16:50:00 by amert             #+#    #+#             */
-/*   Updated: 2025/07/08 15:32:24 by amert            ###   ########.fr       */
+/*   Updated: 2025/07/13 13:33:42 by amert            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,8 +48,14 @@ static int	find_variable_end(const char *str, int start)
 	int	i;
 
 	i = start;
+	// Özel değişkenler: $?, $$, $0
 	if (str[i] == '?')
 		return (i + 1);
+	if (str[i] == '$')
+		return (i + 1);
+	if (str[i] >= '0' && str[i] <= '9')
+		return (i + 1);
+	// Normal değişken ismi kontrolleri
 	if (!ft_isalpha(str[i]) && str[i] != '_')
 		return (i);
 	while (str[i] && (ft_isalnum(str[i]) || str[i] == '_'))
