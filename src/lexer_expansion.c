@@ -78,7 +78,16 @@ t_token	*tokenize_with_expansion(char *input, t_shell *shell)
 	{
 		next = current->next;
 		if (current->type == TOKEN_WORD && ft_strchr(current->content, '$'))
+		{
+			// Heredoc delimiter kontrolü
+			if (current->prev && current->prev->type == TOKEN_HEREDOC)
+			{
+				// Heredoc delimiter - genişletme yapma
+				current = next;
+				continue;
+			}
 			process_word_expansion(&tokens, current, shell);
+		}
 		current = next;
 	}
 	return (tokens);

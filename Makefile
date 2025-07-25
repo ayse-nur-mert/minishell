@@ -55,6 +55,6 @@ fclean: clean
 
 re: fclean all
 
+# Debug build without address sanitizer (for valgrind compatibility)
 
-.PHONY: all clean fclean re run debug test
 
